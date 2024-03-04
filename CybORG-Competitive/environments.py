@@ -525,7 +525,7 @@ class DedicatedRedEnv(gym.Env):
         return (obs, reward, done, info)
 
 
-def build_blue_agent(opponent=False, dedicated=False, workers=40, fresh=True):
+def build_blue_agent(opponent=False, dedicated=False, workers=4, fresh=True):
     # register the custom environment
     if dedicated:
         select_env = "DedicatedBlueEnv"
@@ -616,7 +616,7 @@ def build_blue_agent(opponent=False, dedicated=False, workers=40, fresh=True):
             path_file.close() 
     return blue_agent
 
-def build_red_agent(opponent=False, dedicated=False, workers=40, fresh=True):
+def build_red_agent(opponent=False, dedicated=False, workers=4, fresh=True):
     # register the custom environment
     if dedicated:
         select_env = "DedicatedRedEnv"
