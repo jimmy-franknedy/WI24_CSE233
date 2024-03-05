@@ -33,6 +33,10 @@ Agents:
           Interfaces: All
           System info: All
           User info: All
+        User4:
+          Interfaces: All
+          System info: All
+          User info: All
     adversary: Red
     actions:
       - Monitor
@@ -62,6 +66,11 @@ Agents:
         parent: VeloServer
         type: VelociraptorClient
         username: ubuntu
+      - hostname: User4
+        name: VeloUser4
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu        
       - hostname: Defender
         name: VeloDefender
         parent: VeloServer
@@ -176,6 +185,18 @@ Hosts:
         Interfaces: All
     ConfidentialityValue: Low
     AvailabilityValue: Low
+  User4:
+    AWS_Info: []
+    image: windows_user_host1
+    info:
+      Op_Host0:
+        Interfaces: IP Address
+      Op_Server0:
+        Interfaces: IP Address
+      User4:
+        Interfaces: All
+    ConfidentialityValue: Low
+    AvailabilityValue: Low
 Subnets:
   Operational:
     Hosts:
@@ -193,8 +214,9 @@ Subnets:
     - User1
     - User2
     - User3
+    - User4
     NACLs:
       all:
         in: all
         out: all
-    Size: 4
+    Size: 5

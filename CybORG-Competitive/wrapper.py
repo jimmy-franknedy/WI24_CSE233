@@ -39,6 +39,7 @@ class CompetitiveWrapper(BaseWrapper):
             "User1",
             "User2",
             "User3",
+            "User4", # added
         )
 
         blue_lone_actions = [["Monitor"]]  # actions with no parameters

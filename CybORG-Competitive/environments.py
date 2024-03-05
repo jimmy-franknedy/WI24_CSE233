@@ -51,6 +51,7 @@ hostnames = (
     "User1",
     "User2",
     "User3",
+    "User4",    # added
 )
 blue_lone_actions = [["Monitor"]]  # actions with no parameters
 blue_host_actions = (
@@ -76,7 +77,7 @@ red_action_list = (
     + list(product(red_host_actions, hostnames))
 )
 blue_obs_space = 5*len(hostnames) + timesteps + 1
-red_obs_space = 29 + timesteps + 1
+red_obs_space = len(hostnames) + 3*len(hostnames) + 2*len(subnets) + 2*len(subnets) + 1 + timesteps + 1
 
 class BlueTrainer(gym.Env):
     def __init__(self, env_config):
@@ -799,5 +800,4 @@ def sample(test_red, test_blue, games=1, verbose=False, show_policy=False, blue_
         print(f'Low Score is {min_score}')
     
     return(avg_score)
-
 
