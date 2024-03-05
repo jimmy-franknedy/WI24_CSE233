@@ -35,8 +35,6 @@ class CompetitiveWrapper(BaseWrapper):
         self.subnets = "Op", "User"
         self.hostnames = (
             "Op_Host0",
-            "Op_Host1", # added
-            "Op_Host2", # added
             "Op_Server0",
             "User1",
             "User2",
