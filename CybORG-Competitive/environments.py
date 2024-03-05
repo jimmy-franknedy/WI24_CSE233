@@ -13,22 +13,25 @@ from random import randint, random
 from scipy.special import softmax
 from statistics import mean
 
-timesteps = 12 # per game
+# Updated Hyper-parameters
+timesteps = 30
+batch_size = 61440
+mini_batch_size = 3840
 
 gae = 1
 gamma = 0.99
 epochs = 30
 mixer = 0.9 # for training opponent best-response, how many games with current agent policy instead of agent pool
 
-red_batch_size = 61440
-red_minibatch_size = 3840
+red_batch_size = batch_size
+red_minibatch_size = mini_batch_size
 red_lr = 5e-4
 red_entropy = 1e-3
 red_kl = 1
 red_clip_param = 0.3
 
-blue_batch_size = 61440
-blue_minibatch_size = 3840
+blue_batch_size = batch_size
+blue_minibatch_size = mini_batch_size
 blue_lr = 5e-4
 blue_entropy = 1e-3
 blue_kl = 1
@@ -39,6 +42,7 @@ model_arch = [layer_units, layer_units]
 act_func = "tanh"
 
 experiment_name = "phase1"
+
 # construct the blue and red action spaces
 subnets = "Op", "User"
 hostnames = (
@@ -157,7 +161,6 @@ class BlueTrainer(gym.Env):
 
         return (obs, reward, done, info)
     
-
 class BlueOpponent(gym.Env):
     def __init__(self, env_config):
 
@@ -240,7 +243,6 @@ class BlueOpponent(gym.Env):
             done = True  
 
         return (obs, reward, done, info)
-
 
 class DedicatedBlueEnv(gym.Env):
     def __init__(self, env_config):
@@ -388,7 +390,6 @@ class RedTrainer(gym.Env):
 
         return (obs, reward, done, info)
 
-
 class RedOpponent(gym.Env):
     def __init__(self, env_config):
         self.name = "red_env"
@@ -461,7 +462,6 @@ class RedOpponent(gym.Env):
 
         return (obs, reward, done, info)
 
-
 class DedicatedRedEnv(gym.Env):
     def __init__(self, env_config):
         self.name = "red_env"
@@ -524,7 +524,6 @@ class DedicatedRedEnv(gym.Env):
 
         return (obs, reward, done, info)
 
-
 def build_blue_agent(opponent=False, dedicated=False, workers=4, fresh=True):
     # register the custom environment
     if dedicated:
@@ -555,7 +554,7 @@ def build_blue_agent(opponent=False, dedicated=False, workers=4, fresh=True):
     # set the RLLib configuration
     blue_config = {
         "env": "blue_trainer",
-        "num_gpus": 1,
+        "num_gpus": 0,
         "num_workers": workers,
         "train_batch_size": blue_batch_size,
         "sgd_minibatch_size": blue_minibatch_size,
@@ -646,7 +645,7 @@ def build_red_agent(opponent=False, dedicated=False, workers=4, fresh=True):
     # set the RLLib configuration
     red_config = {
         "env": "RedTrainer",
-        "num_gpus":  1,
+        "num_gpus":  0,
         "num_workers": workers,
         "train_batch_size": red_batch_size,
         "sgd_minibatch_size": red_minibatch_size,
