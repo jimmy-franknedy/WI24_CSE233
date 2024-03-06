@@ -50,6 +50,14 @@ Agents:
           Interfaces: All
           System info: All
           User info: All
+        Enterprise1:
+          Interfaces: All
+          System info: All
+          User info: All
+        Enterprise2:
+          Interfaces: All
+          System info: All
+          User info: All
     adversary: Red
     actions:
       - Monitor
@@ -114,6 +122,16 @@ Agents:
         parent: VeloServer
         type: VelociraptorClient
         username: ubuntu
+      - hostname: Enterprise1
+        name: VeloEnterprise1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: Enterprise2
+        name: VeloEnterprise2
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
       - artifacts:
           - NetworkConnections
           - ProcessCreation
@@ -173,14 +191,6 @@ Hosts:
     image: Internal
     info:
       Op_Host2:
-        Interfaces: All
-    ConfidentialityValue: Medium
-    AvailabilityValue: Medium
-  Enterprise0:
-    AWS_Info: []
-    image: Internal
-    info:
-      Enterprise0:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
@@ -250,15 +260,41 @@ Hosts:
         Interfaces: All
     ConfidentialityValue: Low
     AvailabilityValue: Low
+  Enterprise0:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise0:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  Enterprise1:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  Enterprise2:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise2:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
 Subnets:
   Enterprise:
     Hosts:
     - Enterprise0
+    - Enterprise1
+    - Enterprise2
     NACLs:
       all:
         in: all
         out: all
-    Size: 1
+    Size: 3
   Operational:
     Hosts:
     - Op_Server0

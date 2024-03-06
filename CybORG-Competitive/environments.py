@@ -47,14 +47,16 @@ experiment_name = "phase1"
 subnets = "Op", "User", "Enterprise"
 hostnames = (
     "Op_Host0",
-    "Op_Host1",     # added
-    "Op_Host2",     # added
+    "Op_Host1",
+    "Op_Host2",
     "Op_Server0",
     "User1",
     "User2",
     "User3",
-    "User4",        # added
-    "Enterprise0",  # added
+    "User4",
+    "Enterprise0",
+    "Enterprise1",
+    "Enterprise2",
 )
 blue_lone_actions = [["Monitor"]]  # actions with no parameters
 blue_host_actions = (

@@ -35,14 +35,16 @@ class CompetitiveWrapper(BaseWrapper):
         self.subnets = "Op", "User", "Enterprise"
         self.hostnames = (
             "Op_Host0",
-            "Op_Host1",     # added
-            "Op_Host2",     # added
+            "Op_Host1",
+            "Op_Host2",
             "Op_Server0",
             "User1",
             "User2",
             "User3",
-            "User4",        # added
-            "Enterprise0",  # added
+            "User4",
+            "Enterprise0",
+            "Enterprise1",
+            "Enterprise2",
         )
 
         blue_lone_actions = [["Monitor"]]  # actions with no parameters
@@ -133,13 +135,12 @@ class CompetitiveWrapper(BaseWrapper):
 
     def map_network(self, env):
 
+        print("checking here")
+
         i = 0  # count through the networks to assign the correct IP
         for subnet in env.get_action_space(agent="Red")["subnet"]:
             self.subnet_map[self.subnets[i]] = subnet
             i += 1
-
-        print("checking here")
-        print(self.subnet_map)
 
         i = 0  # counter through the IP addresses to assign the correct hostname
         for address in env.get_action_space(agent="Red")["ip_address"]:
