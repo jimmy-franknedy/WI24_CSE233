@@ -32,16 +32,17 @@ class CompetitiveWrapper(BaseWrapper):
         self.output_mode = output_mode
         self.success = None
 
-        self.subnets = "Op", "User"
+        self.subnets = "Op", "User", "Enterprise"
         self.hostnames = (
             "Op_Host0",
-            "Op_Host1", # added
-            "Op_Host2", # added
+            "Op_Host1",     # added
+            "Op_Host2",     # added
             "Op_Server0",
             "User1",
             "User2",
             "User3",
-            "User4", # added
+            "User4",        # added
+            "Enterprise0",  # added
         )
 
         blue_lone_actions = [["Monitor"]]  # actions with no parameters
@@ -68,10 +69,10 @@ class CompetitiveWrapper(BaseWrapper):
             + list(product(red_host_actions, self.hostnames))
         )
 
-        self.subnet_map = {}  # subnets are ordered [Op, User]
+        self.subnet_map = {}  # subnets are ordered [Op, User] NOT UPDATED
         self.ip_map = (
             {}
-        )  # ip addresses are ordered ['Op_Host0', 'Op_Server0', 'User0', 'User1', 'User2', 'User3']
+        )  # ip addresses are ordered ['Op_Host0', 'Op_Server0', 'User0', 'User1', 'User2', 'User3'] NOT UPDATED
 
         self.host_scan_status = [0]*len(self.hostnames)
         self.subnet_scan_status = [0]*len(self.subnets)*2
@@ -136,6 +137,9 @@ class CompetitiveWrapper(BaseWrapper):
         for subnet in env.get_action_space(agent="Red")["subnet"]:
             self.subnet_map[self.subnets[i]] = subnet
             i += 1
+
+        print("checking here")
+        print(self.subnet_map)
 
         i = 0  # counter through the IP addresses to assign the correct hostname
         for address in env.get_action_space(agent="Red")["ip_address"]:

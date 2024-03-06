@@ -3,6 +3,7 @@ Agents:
     AllowedSubnets:
       - User
       - Operational
+      - Enterprise
     INT:
       Hosts:
         Defender:
@@ -42,6 +43,10 @@ Agents:
           System info: All
           User info: All
         User4:
+          Interfaces: All
+          System info: All
+          User info: All
+        Enterprise0:
           Interfaces: All
           System info: All
           User info: All
@@ -104,6 +109,11 @@ Agents:
         parent: VeloServer
         type: VelociraptorClient
         username: ubuntu
+      - hostname: Enterprise0
+        name: VeloEnterprise0
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
       - artifacts:
           - NetworkConnections
           - ProcessCreation
@@ -117,6 +127,7 @@ Agents:
     AllowedSubnets:
       - User
       - Operational
+      - Enterprise
     INT:
       Hosts:
         User0:
@@ -162,6 +173,14 @@ Hosts:
     image: Internal
     info:
       Op_Host2:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  Enterprise0:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise0:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
@@ -232,6 +251,14 @@ Hosts:
     ConfidentialityValue: Low
     AvailabilityValue: Low
 Subnets:
+  Enterprise:
+    Hosts:
+    - Enterprise0
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 1
   Operational:
     Hosts:
     - Op_Server0
