@@ -52,7 +52,12 @@ if __name__ == "__main__":
     print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
     # Create the action space
-    optimized_red_action = []
+    optimized_red_action = [0] # sleep
+    optimized_red_action += [1, 2, 3] # Discover Remote Services
+    optimized_red_action += [i for i in range(4,17)] # Discover Network Services
+    optimized_red_action += [i for i in range(17,30)] # Exploit Remote Service
+    optimized_red_action += [i for i in range(758,771)] # Privilege Escalate
+    optimized_red_action += [i for i in range(771,784)] # Impact
 
     # Train red agent (input: Number of games to train)
     red_agent.train(100)
