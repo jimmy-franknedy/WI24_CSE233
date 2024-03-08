@@ -24,10 +24,13 @@ def wrap(env):
     return ChallengeWrapper2(env=env, agent_name=agent_name)
 
 if __name__ == "__main__":
+
+    # Get start time
+    start = time.time()
+
+    # Basic load
     cyborg_version = CYBORG_VERSION
     scenario = 'Scenario2'
-    
-
     
     # Load scenario
     path = str(inspect.getfile(CybORG))
@@ -35,26 +38,18 @@ if __name__ == "__main__":
 
     # Load blue agent
     blue_agent = WrappedBlueAgent
-    red_agent = RedAgent()
+
     # Set up environment with blue agent running in the background and 
     # red agent as the main agent
     cyborg = CybORG(path, 'sim', agents={'Blue': blue_agent})
     env = ChallengeWrapper2(env=cyborg, agent_name="Red")
 
-    max_episodes = 1
-    max_timesteps = 1
-    for i_episode in range(1, max_episodes + 1):
-        observation = env.reset()
-        time_step = 0
-        action_space = env.get_action_space('Red')
-        for t in range(max_timesteps):
-            time_step += 1
-            action =  red_agent.get_action(observation, action_space) 
-            observation, reward, done, _ = env.step(action)
+    # Load red agent
+    red_agent = RedAgent(env)
 
-            '''
-            CSE233 Project: Here you should call red agent training function 
-            '''
-            # red_agent.train(...) # CSE233 Project: uncoment when you implement red agent training
-            
+    # Get intialization time
+    elapsed_time = time.time() - start
+    print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))    
 
+    # Train red agent (input: Number of games to train)
+    red_agent.train(100)

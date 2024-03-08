@@ -29,8 +29,6 @@ if __name__ == "__main__":
     scenario = 'Scenario2'
     # commit_hash = get_git_revision_hash()
     
-
-    
     # Load scenario
     path = str(inspect.getfile(CybORG))
     path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
@@ -38,18 +36,22 @@ if __name__ == "__main__":
 
     # Load blue agent
     blue_agent = WrappedBlueAgent
-    red_agent = RedAgent()
+    
     # Set up environment with blue agent running in the background and 
     # red agent as the main agent
     cyborg = CybORG(path, 'sim', agents={'Blue': blue_agent})
     env = ChallengeWrapper2(env=cyborg, agent_name="Red")
-    
 
+    # Load red agent
+    red_agent = RedAgent(env)
+    red_agent.learn(600)
+    
     num_steps = 30
     observation = env.reset()
 
     # action_space = wrapped_cyborg.get_action_space(agent_name)
     action_space = env.get_action_space(agent_name)
+
     total_reward = []
     actions = []
     for i in range(MAX_EPS):
@@ -59,10 +61,8 @@ if __name__ == "__main__":
             action = j % action_space
             observation, rew, done, info = env.step(action)
             r.append(rew)
+            print(j, ": ",rew)
             a.append((str(cyborg.get_last_action('Blue')), str(cyborg.get_last_action('Red'))))
         total_reward.append(sum(r))
         actions.append(a)
         observation = env.reset()
-
-
-            

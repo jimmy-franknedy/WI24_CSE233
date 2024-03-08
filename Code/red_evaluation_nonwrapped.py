@@ -29,6 +29,8 @@ if __name__ == "__main__":
     scenario = 'Scenario2'
     # commit_hash = get_git_revision_hash()
     
+
+    
     # Load scenario
     path = str(inspect.getfile(CybORG))
     path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
@@ -59,3 +61,6 @@ if __name__ == "__main__":
             a.append((str(cyborg.get_last_action('Blue')), str(cyborg.get_last_action('Red'))))
         total_reward.append(sum(r))
         actions.append(a)
+
+
+            
