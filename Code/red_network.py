@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import numpy as np
 
 # Network depth
-hidden_dim = 256
+hidden_dim = 1024
 
 class FeedForwardNN(nn.Module):
 	"""
