@@ -182,9 +182,6 @@ class RedAgent():
             print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)))
             current_game +=1
 
-            while(1):
-                continue            
-
         print("Training completed!")
         print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(global_start-time.time())))
 
