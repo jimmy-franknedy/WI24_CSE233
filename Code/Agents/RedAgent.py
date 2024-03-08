@@ -2,9 +2,8 @@ from CybORG.Agents import BaseAgent
 import random
 
 # Custom packages
-import time
 import numpy as np
-import time
+import time, os, shutil
 import torch
 import torch.nn as nn
 
@@ -79,8 +78,38 @@ class RedAgent():
         # Track number of played games
         current_game = 0
 
+        # Path to directory to store red agent's policies
+        red_policy_folder_name = "red_policy"
+
+        # Create a directory to store red agent's policies
+
+        # Note: Code will delete entire 'red_policy_folder' and re-create new policies during training
+        #       To keep the old policies; change 'red_policy_folder' to new folder name
+        #       Doing so, new policies can be trained and old ones are saved
+
+        # Directory organized as below
+        # red_policy
+        #  |
+        #   - 0
+        #     |
+        #      - Policy (i.e. neural network weights for actor-critic) for red agent at Game 0
+        #   - 1
+        #     |
+        #      - Policy for red agent at Game 1
+        #  ...
+        #  - total_games
+
+        red_policy_path = os.path.join(os.getcwd(), red_policy_folder_name)
+        if os.path.exists(red_policy_path):
+            shutil.rmtree(red_policy_path)
+        os.makedirs(red_policy_path)
+        for g in range(total_games):
+            g_folder = os.path.join(red_policy_path,str(g))
+            os.makedirs(g_folder)
+
         # Get start time
         start = time.time()
+        global_start = start
 
         # ALG STEP 2
         # while current_timestep < total_timesteps:
@@ -95,7 +124,7 @@ class RedAgent():
             # print("current_timestep: ", current_timestep)
 
             # Calculate value of observation
-            # Note: Use '_' to upack the log probs
+            # Note: Use '_' to upack log probs
             V, _ = self.compute_value(batch_obs, batch_acts)
 
             # ALG STEP 5
@@ -137,15 +166,27 @@ class RedAgent():
                 critic_loss.backward()    
                 self.critic_optim.step()            # something about setting 'retain_graph = True' to backward?
 
+            # Determine red agent policy path
+            current_policy_path = os.path.join(red_policy_path,str(current_game))
+            # print("current_policy_path: ", current_policy_path)
+
+            # Save red agent policy (i.e save actor-critic networks)
+            torch.save(self.actor.state_dict(), os.path.join(current_policy_path, "actor_policy.pth"))
+            torch.save(self.critic.state_dict(), os.path.join(current_policy_path, "critic_policy.pth"))
+
             # Finshed game time
             current = time.time()
             elapsed = current-start
             start = current
 
             print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)))
-            current_game +=1            
+            current_game +=1
 
-        print("Training complete!")
+            while(1):
+                continue            
+
+        print("Training completed!")
+        print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(global_start-time.time())))
 
     # Function to collect data within one batch
     def rollout(self):
