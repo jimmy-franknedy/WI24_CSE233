@@ -142,7 +142,8 @@ class RedAgent():
             elapsed = current-start
             start = current
 
-            print('Game(', currrent_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))            
+            print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)))
+            current_game +=1            
 
         print("Training complete!")
 
