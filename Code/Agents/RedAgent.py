@@ -242,6 +242,19 @@ class RedAgent():
             batch_lens.append(current_timestep_episode + 1) 
             batch_rews.append(episode_reward) 
 
+
+        # Convert batch_obs into a single NumPy array
+        # Note: this line alleviates the following warning when ran
+        #       Not sure if '.float32' or 'float64' will have an impact on agent's overall learning?
+        #       Adding this line, saved 7-9 seconds per game during training
+        #
+        #       UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. 
+        #       Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+        #
+        batch_obs = np.array(batch_obs, dtype=np.float64)
+        batch_acts = np.array(batch_acts, dtype=np.float64)
+        batch_log_probs = np.array(batch_log_probs, dtype=np.float64)
+
         # Reshape data as tensors in shape specified before returning
         batch_obs = torch.tensor(batch_obs, dtype=torch.float)
         batch_acts = torch.tensor(batch_acts, dtype=torch.float)
