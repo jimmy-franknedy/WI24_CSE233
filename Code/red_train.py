@@ -49,7 +49,10 @@ if __name__ == "__main__":
 
     # Get intialization time
     elapsed_time = time.time() - start
-    print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))    
+    print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
+    # Create the action space
+    optimized_red_action = []
 
     # Train red agent (input: Number of games to train)
     red_agent.train(100)
