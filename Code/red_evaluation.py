@@ -3,7 +3,7 @@
 # The blue agent is https://github.com/john-cardiff/-cyborg-cage-2.git
 # Modified by Prof. H. Sasahara
 import inspect
-import time
+import time, os, torch
 from statistics import mean, stdev
 
 from CybORG import CybORG, CYBORG_VERSION
@@ -14,6 +14,7 @@ from Agents.WrappedAgent import WrappedBlueAgent
 from Agents.MainAgent import MainAgent
 from Agents.RedAgent import RedAgent
 import random
+import numpy as np
 
 MAX_EPS = 1
 agent_name = 'Red'
@@ -32,7 +33,6 @@ if __name__ == "__main__":
     # Load scenario
     path = str(inspect.getfile(CybORG))
     path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
-    
 
     # Load blue agent
     blue_agent = WrappedBlueAgent
@@ -44,7 +44,13 @@ if __name__ == "__main__":
 
     # Load red agent
     red_agent = RedAgent(env)
+
+    # Path to directory to store red agent's optimal policy
+    red_optimal_path = "red_optimal"
+
     # Add torch.load() code here
+    red_agent.actor.load_state_dict(torch.load(os.path.join(red_optimal_path, "actor_policy.pth")))
+    red_agent.critic.load_state_dict(torch.load(os.path.join(red_optimal_path, "critic_policy.pth")))
 
     # Intialize game and red agent observation
     num_steps = 30
@@ -61,8 +67,17 @@ if __name__ == "__main__":
         a = []
         for j in range(num_steps):
 
-            # Default action selection - random choice
-            action = j % action_space
+            # Create the time bit vector
+            time_vector = [0] * num_steps
+
+            # Set current timestep
+            time_vector[j] = 1
+
+            # Combine the observation vector with time vector
+            complete_observation = np.concatenate((observation, time_vector))
+
+            # Get agent action
+            _, _, action = red_agent.get_action(complete_observation)
 
             observation, rew, done, info = env.step(action)
             r.append(rew)

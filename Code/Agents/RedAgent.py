@@ -44,22 +44,45 @@ class RedAgent():
         # Create covariance matrix for 'get_action'
         self.cov_mat = torch.diag(self.cov_var)
 
+        # Optimal policy selctor: max avg rtg per episode
+        self.best_batch_mean_rtg = float('-inf')
+
+        # Optimal policy saver:
+        self.best_game = 0
+
     # Default hyperparameters for PPO training
     def _init_hyperparameters(self):
 
         # Timesteps per batch
         # (i.e how many games to play before updating actor-critic)
-        self.max_timesteps_per_batch = 10               # ** CHANGE ** with updated action space!
-                                                        # Note: Initially 300
 
-        # Timesteps per episode        
-        self.max_timesteps_per_episode = 30             # KEEP CONSTANT
+        # Combinatorial logic
+        # Given the length of the action space (e.g 888) and
+        # the length of the sequence we want the agent to follow (e.g we
+        # want the action to take 3 actions in sequence) we want to batch
+        # 'length of action space' x 'prob of desired action to be taken'
+        # to give the agent enough chances to behave accordingly
+
+        # self.max_timesteps_per_batch = (self.act_dim ** self.action_sequence_length) * self.multiplier
+        self.max_timesteps_per_batch = 60000
+
+        # How many actions we want agent to take
+        # in a row
+        self.action_sequence_length = 3                 # Want the agent to chose sleep 3 times before B-lining for Op Server
+
+        # Multiplier to give agent a chance to
+        # take on the desired behavior
+        self.multiplier = 2
+
+        # Timesteps per episode
+        # (i.e how many timesteps per game)
+        self.max_timesteps_per_episode = 30
 
         # Discount factor
         self.gamma = 0.99                               
 
         # Number of updates per epoch
-        self.updates_per_iteration = 5                  # 5 should be enough
+        self.updates_per_iteration = 5                  
 
         # Clip ratio (value rec. by paper)
         self.clip = 0.2
@@ -80,6 +103,9 @@ class RedAgent():
 
         # Path to directory to store red agent's policies
         red_policy_folder_name = "red_policy"
+
+        # Path to directory to store red agent's optimal policy
+        red_optimal_folder_name = "red_optimal"
 
         # Create a directory to store red agent's policies
 
@@ -120,11 +146,25 @@ class RedAgent():
             # (i.e how many games to play before updating the actor-critic network)
             batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout()
 
-            # print("len(batch_obs): \t", len(batch_obs))                 # 300
-            # print("len(batch_acts): \t", len(batch_acts))               # 300
-            # print("len(batch_log_probs): \t", len(batch_log_probs))     # 300
-            # print("len(batch_rtgs): \t", len(batch_rtgs))               # 300
-            # print("len(batch_lens): \t", len(batch_lens))               # 10
+            # Calculate the average RTG across the batch
+            # Note: The policy with the highest average RTG is considered the 'optimal' policy
+
+            # Reshape batch_rtgs into a shape where each row represents one game
+            batch_rtgs_reshaped = batch_rtgs.view(self.max_timesteps_per_batch, self.max_timesteps_per_episode)
+            # print(batch_rtgs_reshaped)
+
+            # Compute the total expected reward along the rows to get the RTG for each game
+            batch_total_rtg_per_game = torch.sum(batch_rtgs_reshaped, dim=1)
+            # print(total_rtg_per_game)
+
+            # Calculate the average RTG across the batch
+            batch_mean_rtg = torch.mean(batch_total_rtg_per_game).item()
+            # print(batch_mean_rtg)
+
+            # Update the max average RTG and track episode
+            if(batch_mean_rtg > self.best_batch_mean_rtg):
+                self.best_batch_mean_rtg = batch_mean_rtg
+                self.best_game = current_game
 
             # Calculate value of observation
             # Note: Use '_' to upack log probs
@@ -182,8 +222,22 @@ class RedAgent():
             elapsed = current-start
             start = current
 
-            print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)))
+            print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)), '\tbatch_mean_rtg: ', batch_mean_rtg)
             current_game +=1       
+
+        # Upload red agent's optimal policy to 'red_optimal' directory
+        red_optimal_path = os.path.join(os.getcwd(), red_optimal_folder_name)
+        if os.path.exists(red_optimal_path):
+            shutil.rmtree(red_optimal_path)
+        shutil.copytree(os.path.join(red_policy_path,str(self.best_game)), red_optimal_path)
+
+        # Generate file, titled with the best episode
+        f = os.path.join(red_optimal_path, 'episode_info')
+
+        # Update file with episode information
+        with open(f, 'w') as file:
+            file.write("best_game: " + str(self.best_game))
+            file.write("\nbest_batch_mean_rtg: " + str(self.best_batch_mean_rtg))
 
         print("Training completed!")
         print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(time.time()-global_start)))
@@ -231,7 +285,7 @@ class RedAgent():
                 complete_obs = np.concatenate((obs, time_vector))
 
                 # Collect red agent observation
-                batch_obs.append(complete_obs)                   # Initially 'obs' is reset; but should change as timesteps pass!
+                batch_obs.append(complete_obs)
 
                 # Get an red agent action
                 action, log_prob, best_action_index = self.get_action(complete_obs)
