@@ -60,4 +60,4 @@ if __name__ == "__main__":
     optimized_red_action += [i for i in range(771,784)] # Impact
 
     # Train red agent (input: Number of games to train)
-    red_agent.train(1)
+    red_agent.train(100)
