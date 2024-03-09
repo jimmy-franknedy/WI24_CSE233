@@ -65,7 +65,7 @@ class RedAgent():
         # to give the agent enough chances to behave accordingly
 
         # self.max_timesteps_per_batch = (self.act_dim ** self.action_sequence_length) * self.multiplier
-        self.max_timesteps_per_batch = 30000
+        self.max_timesteps_per_batch = 300
 
         # How many actions we want agent to take
         # in a row
@@ -300,8 +300,8 @@ class RedAgent():
                     batch_acts.append(action)
                     batch_log_probs.append(log_prob)
 
-                    # Update progress bar
-                    pbar.update(1)
+                # Update progress bar
+                pbar.update(1)
 
             # print("finished an episode!")
             # print("current_timestep_batch: ", current_timestep_batch)
