@@ -44,11 +44,13 @@ if __name__ == "__main__":
 
     # Load red agent
     red_agent = RedAgent(env)
-    red_agent.learn(600)
-    
+    # Add torch.load() code here
+
+    # Intialize game and red agent observation
     num_steps = 30
     observation = env.reset()
 
+    # Default action selection - random choice
     # action_space = wrapped_cyborg.get_action_space(agent_name)
     action_space = env.get_action_space(agent_name)
 
@@ -58,7 +60,10 @@ if __name__ == "__main__":
         r = []
         a = []
         for j in range(num_steps):
+
+            # Default action selection - random choice
             action = j % action_space
+
             observation, rew, done, info = env.step(action)
             r.append(rew)
             print(j, ": ",rew)

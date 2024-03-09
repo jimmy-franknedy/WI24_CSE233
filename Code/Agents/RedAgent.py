@@ -22,11 +22,10 @@ class RedAgent():
 
         # Extract environment information
         self.env = env
-        self.obs_dim = env.observation_space.shape[0]                           # Change this to get shape of red agent's observation space
-                                                                                # Note: Ignored the above because observation was already given to red agent in wrapper
-                                                                                #       Calling 'print(self.obs_dim)' prints out '40'
-        self.act_dim = 888                                                      # Note: Logic for code can be found in CybORG tutorials Section 3 (Actions)
-                                                                                #       In short, red agent can only choose 14 actions total
+        self.obs_dim = env.observation_space.shape[0] + self.max_timesteps_per_episode  # Note: Ignored the above because observation was already given to red agent in wrapper
+                                                                                        #       Calling 'print(self.obs_dim)' prints out '40'
+                                                                                        #       Added 30 for the 30-bit time vector
+        self.act_dim = env.get_action_space()                                           # Note: Default action space is of size '888' (i.e total action space is 888 possible actions)
 
         # ALG STEP 1
         # Intialize actor and critic network
@@ -49,8 +48,9 @@ class RedAgent():
     def _init_hyperparameters(self):
 
         # Timesteps per batch
-        # (i.e how many games to play?)
-        self.max_timesteps_per_batch = 300              # Update to Cage 2; what is a batch?
+        # (i.e how many games to play before updating actor-critic)
+        self.max_timesteps_per_batch = 10               # ** CHANGE ** with updated action space!
+                                                        # Note: Initially 300
 
         # Timesteps per episode        
         self.max_timesteps_per_episode = 30             # KEEP CONSTANT
@@ -59,7 +59,7 @@ class RedAgent():
         self.gamma = 0.99                               
 
         # Number of updates per epoch
-        self.updates_per_iteration = 5                  # 5 might be enough?
+        self.updates_per_iteration = 5                  # 5 should be enough
 
         # Clip ratio (value rec. by paper)
         self.clip = 0.2
@@ -72,8 +72,8 @@ class RedAgent():
 
         print("Training started!")
 
-        # Counter to track timesteps
-        current_timestep = 0
+        # Update training to take place over total_games
+        # (i.e how many games agent should play to train?)
 
         # Track number of played games
         current_game = 0
@@ -117,11 +117,14 @@ class RedAgent():
 
             # ALG STEP 3
             # Collect a batch
+            # (i.e how many games to play before updating the actor-critic network)
             batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout()
 
-            # Update current timestep with collected timesteps from batch
-            current_timestep += np.sum(batch_lens)
-            # print("current_timestep: ", current_timestep)
+            # print("len(batch_obs): \t", len(batch_obs))                 # 300
+            # print("len(batch_acts): \t", len(batch_acts))               # 300
+            # print("len(batch_log_probs): \t", len(batch_log_probs))     # 300
+            # print("len(batch_rtgs): \t", len(batch_rtgs))               # 300
+            # print("len(batch_lens): \t", len(batch_lens))               # 10
 
             # Calculate value of observation
             # Note: Use '_' to upack log probs
@@ -180,13 +183,16 @@ class RedAgent():
             start = current
 
             print('Game(', current_game, ') Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed)))
-            current_game +=1
-
-            while(1):
-                continue            
+            current_game +=1       
 
         print("Training completed!")
-        print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(global_start-time.time())))
+        print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(time.time()-global_start)))
+
+    # CUSTOM CODE - Evaluate the agent performance; given the optimal policy
+    def test(self, obs):
+
+        # Returns an action given
+        return 0
 
     # Function to collect data within one batch
     def rollout(self):
@@ -215,14 +221,20 @@ class RedAgent():
             # (i.e we're playing through 30-time steps; 1 full game)
             for current_timestep_episode in range(self.max_timesteps_per_episode):
 
-                # Increment timestep in given batch
-                current_timestep_batch += 1
+                # Create the time bit vector
+                time_vector = [0] * self.max_timesteps_per_episode
+    
+                # Set current timestep
+                time_vector[current_timestep_episode] = 1
+
+                # Combine the observation vector with time vector
+                complete_obs = np.concatenate((obs, time_vector))
 
                 # Collect red agent observation
-                batch_obs.append(obs)                   # Initially 'obs' is reset; but should change as timesteps pass!
+                batch_obs.append(complete_obs)                   # Initially 'obs' is reset; but should change as timesteps pass!
 
                 # Get an red agent action
-                action, log_prob, best_action_index = self.get_action(obs)
+                action, log_prob, best_action_index = self.get_action(complete_obs)
 
                 # FOR EVALUATE:
                 # _, _, action = self.get_action(obs)
@@ -242,6 +254,8 @@ class RedAgent():
             batch_lens.append(current_timestep_episode + 1) 
             batch_rews.append(episode_reward) 
 
+            # Increment timestep in given batch
+            current_timestep_batch += 1
 
         # Convert batch_obs into a single NumPy array
         # Note: this line alleviates the following warning when ran
@@ -290,6 +304,7 @@ class RedAgent():
 
       # Convert 'rewards-to-go' to a tensor, before returing
       batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float)
+
       return batch_rtgs
 
     def compute_value(self, batch_obs, batch_acts):
