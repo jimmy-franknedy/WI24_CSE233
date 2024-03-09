@@ -124,7 +124,7 @@ class RedAgent():
             # print("len(batch_acts): \t", len(batch_acts))               # 300
             # print("len(batch_log_probs): \t", len(batch_log_probs))     # 300
             # print("len(batch_rtgs): \t", len(batch_rtgs))               # 300
-            # print("len(batch_lens): \t", len(batch_lens))               # 10
+            # print("len(batch_lens): \t", len(batch_lens))               # 300
 
             # Calculate value of observation
             # Note: Use '_' to upack log probs
