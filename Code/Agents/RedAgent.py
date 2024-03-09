@@ -3,6 +3,7 @@ import random
 
 # Custom packages
 import numpy as np
+from tqdm import tqdm
 import time, os, shutil
 import torch
 import torch.nn as nn
@@ -64,7 +65,7 @@ class RedAgent():
         # to give the agent enough chances to behave accordingly
 
         # self.max_timesteps_per_batch = (self.act_dim ** self.action_sequence_length) * self.multiplier
-        self.max_timesteps_per_batch = 60000
+        self.max_timesteps_per_batch = 30000
 
         # How many actions we want agent to take
         # in a row
@@ -242,12 +243,6 @@ class RedAgent():
         print("Training completed!")
         print("Total training time: ", time.strftime("%H:%M:%S", time.gmtime(time.time()-global_start)))
 
-    # CUSTOM CODE - Evaluate the agent performance; given the optimal policy
-    def test(self, obs):
-
-        # Returns an action given
-        return 0
-
     # Function to collect data within one batch
     def rollout(self):
     
@@ -262,44 +257,51 @@ class RedAgent():
         # Trach number of timesteps in batch
         current_timestep_batch = 0
 
+        # Estimate total number of iterations
+        total_iterations = self.max_timesteps_per_batch * self.max_timesteps_per_episode
+
         # Run through batches (i.e how many games to play before updating actor-critic)
-        while current_timestep_batch < self.max_timesteps_per_batch:
+        with tqdm(total=self.max_timesteps_per_batch, desc='Collecting Samples') as pbar:
+            while current_timestep_batch < self.max_timesteps_per_batch:
 
-            # Reset episode reward
-            episode_reward = []
+                # Reset episode reward
+                episode_reward = []
 
-            # Reset agent's environment
-            obs = self.env.reset()
+                # Reset agent's environment
+                obs = self.env.reset()
+            
+                # Run through episode (i.e play a game with current actor-critic network)
+                # (i.e we're playing through 30-time steps; 1 full game)
+                for current_timestep_episode in range(self.max_timesteps_per_episode):
+
+                    # Create the time bit vector
+                    time_vector = [0] * self.max_timesteps_per_episode
         
-            # Run through episode (i.e play a game with current actor-critic network)
-            # (i.e we're playing through 30-time steps; 1 full game)
-            for current_timestep_episode in range(self.max_timesteps_per_episode):
+                    # Set current timestep
+                    time_vector[current_timestep_episode] = 1
 
-                # Create the time bit vector
-                time_vector = [0] * self.max_timesteps_per_episode
-    
-                # Set current timestep
-                time_vector[current_timestep_episode] = 1
+                    # Combine the observation vector with time vector
+                    complete_obs = np.concatenate((obs, time_vector))
 
-                # Combine the observation vector with time vector
-                complete_obs = np.concatenate((obs, time_vector))
+                    # Collect red agent observation
+                    batch_obs.append(complete_obs)
 
-                # Collect red agent observation
-                batch_obs.append(complete_obs)
+                    # Get an red agent action
+                    action, log_prob, best_action_index = self.get_action(complete_obs)
 
-                # Get an red agent action
-                action, log_prob, best_action_index = self.get_action(complete_obs)
+                    # FOR EVALUATE:
+                    # _, _, action = self.get_action(obs)
 
-                # FOR EVALUATE:
-                # _, _, action = self.get_action(obs)
+                    # Get reward and new observation from red agent action
+                    obs, rew, done, _ = self.env.step(best_action_index)
 
-                # Get reward and new observation from red agent action
-                obs, rew, done, _ = self.env.step(best_action_index)
+                    # Record reward, action, action's log prob
+                    episode_reward.append(rew)              # Plus 1 because timestep starts at 0
+                    batch_acts.append(action)
+                    batch_log_probs.append(log_prob)
 
-                # Record reward, action, action's log prob
-                episode_reward.append(rew)              # Plus 1 because timestep starts at 0
-                batch_acts.append(action)
-                batch_log_probs.append(log_prob)
+                    # Update progress bar
+                    pbar.update(1)
 
             # print("finished an episode!")
             # print("current_timestep_batch: ", current_timestep_batch)
