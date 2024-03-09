@@ -44,13 +44,6 @@ if __name__ == "__main__":
     cyborg = CybORG(path, 'sim', agents={'Blue': blue_agent})
     env = ChallengeWrapper2(env=cyborg, agent_name="Red")
 
-    # Load red agent
-    red_agent = RedAgent(env)
-
-    # Get intialization time
-    elapsed_time = time.time() - start
-    print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-
     # Create the action space
     optimized_red_action = [0] # sleep
     optimized_red_action += [1, 2, 3] # Discover Remote Services
@@ -59,5 +52,12 @@ if __name__ == "__main__":
     optimized_red_action += [i for i in range(758,771)] # Privilege Escalate
     optimized_red_action += [i for i in range(771,784)] # Impact
 
+    # Load red agent
+    red_agent = RedAgent(env,optimized_red_action)
+
+    # Get intialization time
+    elapsed_time = time.time() - start
+    print('Initialization time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
     # Train red agent (input: Number of games to train)
-    red_agent.train(100)
+    red_agent.train(MAX_EPS)

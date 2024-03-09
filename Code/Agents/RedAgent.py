@@ -15,18 +15,38 @@ from red_network import FeedForwardNN
 class RedAgent():
 
     # Initialize Red agent
-    def __init__(self, env) -> None:
+    def __init__(self, env, custom_action_set = []) -> None:
         super().__init__()
+
+        """
+        Generate the red agent  
+
+        Parameters:
+            env: CybORG
+            custom_action_set (list, optional): List of custom action enums for red agent to use
+            Defaults to all 888 possible actions
+        """
 
         # Initialize hyperparameters for PPO training
         self._init_hyperparameters()
 
         # Extract environment information
         self.env = env
-        self.obs_dim = env.observation_space.shape[0] + self.max_timesteps_per_episode  # Note: Ignored the above because observation was already given to red agent in wrapper
-                                                                                        #       Calling 'print(self.obs_dim)' prints out '40'
-                                                                                        #       Added 30 for the 30-bit time vector
-        self.act_dim = env.get_action_space()                                           # Note: Default action space is of size '888' (i.e total action space is 888 possible actions)
+
+        # Default observation vector
+        # self.obs_dim = env.observation_space.shape[0]
+
+        # Time vector + Default observation vector
+        self.obs_dim = env.observation_space.shape[0] + self.max_timesteps_per_episode          # Note: Ignored the above because observation was already given to red agent in wrapper
+                                                                                                #       Calling 'print(self.obs_dim)' prints out '40'
+                                                                                                #       Added 30 for the 30-bit time vector
+        self.act_dim = env.get_action_space()                                                   # Note: Default action space is of size '888' (i.e total action space is 888 possible actions)
+
+        if(len(custom_action_set) > 0):
+            print("Red agent using custom_action_set")
+            self.act_dim = len(custom_action_set)
+
+        self.custom_action_set = custom_action_set.copy()
 
         # ALG STEP 1
         # Intialize actor and critic network
@@ -51,6 +71,11 @@ class RedAgent():
         # Optimal policy saver:
         self.best_game = 0
 
+        # Option for time vector to be included with obs
+        self.time_vector_flag = False
+        if(self.obs_dim > env.observation_space.shape[0]):
+            self.time_vector_flag = True
+
     # Default hyperparameters for PPO training
     def _init_hyperparameters(self):
 
@@ -65,7 +90,7 @@ class RedAgent():
         # to give the agent enough chances to behave accordingly
 
         # self.max_timesteps_per_batch = (self.act_dim ** self.action_sequence_length) * self.multiplier
-        self.max_timesteps_per_batch = 100
+        self.max_timesteps_per_batch = 1000
 
         # How many actions we want agent to take
         # in a row
@@ -272,20 +297,23 @@ class RedAgent():
             # (i.e we're playing through 30-time steps; 1 full game)
             for current_timestep_episode in range(self.max_timesteps_per_episode):
 
-                # Create the time bit vector
-                time_vector = [0] * self.max_timesteps_per_episode
-    
-                # Set current timestep
-                time_vector[current_timestep_episode] = 1
+                # Add time-vector if implemented
+                if(self.time_vector_flag):
 
-                # Combine the observation vector with time vector
-                complete_obs = np.concatenate((obs, time_vector))
+                    # Create the time bit vector
+                    time_vector = [0] * self.max_timesteps_per_episode
+
+                    # Set current timestep
+                    time_vector[current_timestep_episode] = 1
+
+                    # Combine the observation vector with time vector
+                    obs = np.concatenate((obs, time_vector))
 
                 # Collect red agent observation
-                batch_obs.append(complete_obs)
+                batch_obs.append(obs)
 
                 # Get an red agent action
-                action, log_prob, best_action_index = self.get_action(complete_obs)
+                action, log_prob, best_action_index = self.get_action(obs)
 
                 # FOR EVALUATE:
                 # _, _, action = self.get_action(obs)
