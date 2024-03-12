@@ -1,0 +1,85 @@
+(cage-2) PS C:\Users\Jimmy\Desktop\CSE233_Cage2_Project> python red_train.py
+Generation:  5000        Time to collect samples:  00:18:15
+Update & save time:  00:00:04
+Generation:  10000       Time to collect samples:  00:18:19
+Update & save time:  00:00:04
+Generation:  15000       Time to collect samples:  00:18:24
+Update & save time:  00:00:04
+Generation:  20000       Time to collect samples:  00:18:26
+Update & save time:  00:00:04
+Generation:  25000       Time to collect samples:  00:18:33
+Update & save time:  00:00:04
+Generation:  30000       Time to collect samples:  00:18:39
+Update & save time:  00:00:04
+Episode 30000    Avg reward: -0.5658033333322627
+Generation:  35000       Time to collect samples:  00:18:44
+Update & save time:  00:00:04
+Generation:  40000       Time to collect samples:  00:18:49
+Update & save time:  00:00:04
+Generation:  45000       Time to collect samples:  00:18:57
+Update & save time:  00:00:04
+Generation:  50000       Time to collect samples:  00:18:59
+Update & save time:  00:00:04
+Generation:  55000       Time to collect samples:  00:19:03
+Update & save time:  00:00:04
+Generation:  60000       Time to collect samples:  00:19:02
+Update & save time:  00:00:04
+Episode 60000    Avg reward: 4.163476666687665
+Generation:  65000       Time to collect samples:  00:19:02
+Update & save time:  00:00:04
+Generation:  70000       Time to collect samples:  00:19:06
+Update & save time:  00:00:04
+Generation:  75000       Time to collect samples:  00:19:10
+Update & save time:  00:00:04
+Generation:  80000       Time to collect samples:  00:19:09
+Update & save time:  00:00:04
+Generation:  85000       Time to collect samples:  00:19:12
+Update & save time:  00:00:04
+Generation:  90000       Time to collect samples:  00:19:14
+Update & save time:  00:00:04
+Episode 90000    Avg reward: 11.935156666623309
+Generation:  95000       Time to collect samples:  00:19:20
+Update & save time:  00:00:04
+Generation:  100000      Time to collect samples:  00:19:23
+Update & save time:  00:00:04
+Generation:  105000      Time to collect samples:  00:19:25
+Update & save time:  00:00:04
+Generation:  110000      Time to collect samples:  00:19:16
+Update & save time:  00:00:04
+Generation:  115000      Time to collect samples:  00:19:18
+Update & save time:  00:00:04
+Generation:  120000      Time to collect samples:  00:19:27
+Update & save time:  00:00:04
+Episode 120000   Avg reward: 19.858839999761717
+Generation:  125000      Time to collect samples:  00:19:55
+Update & save time:  00:00:04
+Generation:  130000      Time to collect samples:  00:20:28
+Update & save time:  00:00:04
+Generation:  135000      Time to collect samples:  00:20:07
+Update & save time:  00:00:04
+Generation:  140000      Time to collect samples:  00:20:01
+Update & save time:  00:00:04
+Generation:  145000      Time to collect samples:  00:19:55
+Update & save time:  00:00:04
+Generation:  0   Time to collect samples:  00:19:50
+Update & save time:  00:00:04
+Episode 150000   Avg reward: 23.945113333014213
+[3, 13, 26, 767, 6, 6, 19, 760, 19, 6, 760, 19, 6, 19, 760, 760, 3, 19, 760, 19, 19, 19, 760, 19, 760, 19, 19, 19, 767, 760]
+Generation:  5000        Time to collect samples:  00:19:32
+Update & save time:  00:00:04
+Generation:  10000       Time to collect samples:  00:19:35
+Update & save time:  00:00:04
+Generation:  15000       Time to collect samples:  00:21:18
+Update & save time:  00:00:04
+Generation:  20000       Time to collect samples:  00:20:30
+Update & save time:  00:00:04
+Generation:  25000       Time to collect samples:  00:19:39
+Update & save time:  00:00:04
+Generation:  30000       Time to collect samples:  00:19:50
+Update & save time:  00:00:04
+Episode 180000   Avg reward: 25.61504999964633
+Generation:  35000       Time to collect samples:  00:19:50
+Update & save time:  00:00:04
+Generation:  40000       Time to collect samples:  00:20:07
+Update & save time:  00:00:04
+Traceback (most recent call last):

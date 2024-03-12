@@ -1,0 +1,13 @@
+    'Enterprise0': IPv4Address('10.0.14.139'),
+    'Enterprise1': IPv4Address('10.0.14.132'),
+    'Enterprise2': IPv4Address('10.0.14.136'),
+    'Defender': IPv4Address('10.0.14.129'),
+    'Op_Server0': IPv4Address('10.0.199.120'),
+    'Op_Host0': IPv4Address('10.0.199.113'),
+    'Op_Host1': IPv4Address('10.0.199.126'),
+    'Op_Host2': IPv4Address('10.0.199.124'),
+    'User0': IPv4Address('10.0.77.210'),
+    'User1': IPv4Address('10.0.77.222'),
+    'User2': IPv4Address('10.0.77.218'),
+    'User3': IPv4Address('10.0.77.217'),
+    'User4': IPv4Address('10.0.77.219')

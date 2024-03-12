@@ -1,7 +1,7 @@
 # copied from https://github.com/geekyutao/PyTorch-PPO/blob/master/PPO_discrete.py
 # only changes involve keeping track of decoys, adding scanning states, and reduction of action space
 
-from PPO.ActorCritic import ActorCritic
+from PPO.ActorCritic import ActorCritic_Blue
 from PPO.Memory import Memory
 import torch
 import torch.nn as nn
@@ -12,9 +12,9 @@ import copy
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PPOAgent(BaseAgent):
-    def __init__(self, input_dims=52, action_space=[i for i in range(158)], lr=0.002, betas=[0.9, 0.990], gamma=0.99, K_epochs=4, eps_clip=0.2, restore=False, ckpt=None,
+    def __init__(self, input_dims=52, action_space=[], lr=0.002, betas=[0.9, 0.990], gamma=0.99, K_epochs=4, eps_clip=0.2, restore=False, ckpt=None,
                  deterministic=False, training=True, start_actions=[]):
-
+    
         self.lr = lr
         self.betas = betas
         self.gamma = gamma
@@ -62,7 +62,6 @@ class PPOAgent(BaseAgent):
             return np.concatenate((observation, self.scan_state_old))
         else:
             return np.concatenate((observation, self.scan_state))
-
 
     def get_action(self, observation, action_space=None):
         # not needed for ppo since no transitions (remnant of DQNAgent)
@@ -251,13 +250,13 @@ class PPOAgent(BaseAgent):
         self.input_dims += 10
 
 
-        self.policy = ActorCritic(self.input_dims, self.n_actions).to(device)
+        self.policy = ActorCritic_Blue(self.input_dims, self.n_actions).to(device)
         if self.restore:
             pretained_model = torch.load(self.ckpt, map_location=lambda storage, loc: storage)
             self.policy.load_state_dict(pretained_model)
         self.optimizer = torch.optim.Adam(self.policy.parameters(), lr=self.lr, betas=self.betas)
 
-        self.old_policy = ActorCritic(self.input_dims, self.n_actions).to(device)
+        self.old_policy = ActorCritic_Blue(self.input_dims, self.n_actions).to(device)
         self.old_policy.load_state_dict(self.policy.state_dict())
 
         self.MSE_loss = nn.MSELoss()

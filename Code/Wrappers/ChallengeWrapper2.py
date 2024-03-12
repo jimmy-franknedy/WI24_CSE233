@@ -23,13 +23,14 @@ class ChallengeWrapper2(Env, BaseWrapper):
 
         self.env = env
         self.action_space = self.env.action_space
+
+
         self.observation_space = self.env.observation_space
         self.reward_threshold = reward_threshold
         self.max_steps = max_steps
         self.step_counter = None
 
     def step(self, action=None):
-        # obs, reward, done, info, _, _ = self.env.step(action=action)
         obs, reward, done, info = self.env.step(action=action)
 
         self.step_counter += 1

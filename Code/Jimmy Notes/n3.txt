@@ -1,0 +1,76 @@
+# Discover Remote Systems	
+ACTION - 3        DiscoverRemoteSystems     			{'session': 0, 'agent': 'Red', 'subnet': IPv4Network('10.0.19.32/28')}
+
+# Discover Network Services - new IP address found
+ACTION - 13       DiscoverNetworkServices         		{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.19.42')}
+
+# Exploit 'User1'
+ACTION - 26       ExploitRemoteService      			{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.19.42')}
+
+# Privilege escalation on 'User1' Host
+ACTION - 767      PrivilegeEscalate     			{'session': 0, 'agent': 'Red', 'hostname': 'User1'}
+
+# Discover Network Services - new IP address found
+ACTION - 6        DiscoverNetworkServices         		{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.251.39')}
+
+# Exploit 'Enterprise1'
+ACTION - 19       ExploitRemoteService       			{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.251.39')}
+
+# Privilege escalation on 'Enterprise1'
+ACTION - 760     PrivilegeEscalate     				{'session': 0, 'agent': 'Red', 'hostname': 'Enterprise1'}	
+
+# Scanning the new subnet found
+ACTION - 1       DiscoverRemoteSystems     			{'session': 0, 'agent': 'Red', 'subnet': IPv4Network('10.0.251.32/28')}
+
+# Discover Network Services on 'Enterprise2'
+ACTION - 7       DiscoverNetworkServices        		{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.251.42')}
+
+# Exploit 'Enterprise2'
+ACTION - 26      ExploitRemoteService      			{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.19.42')}
+
+# Privilege escalation on 'Enterprise2'
+ACTION - 761     PrivilegeEscalate'>     			{'session': 0, 'agent': 'Red', 'hostname': 'Enterprise2'}
+
+# Discover Network Services 'Op_Server0'
+ACTION - 11       DiscoverNetworkServices'>         		{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.38.183')}
+
+# Exploit 'Op_Server0'
+ACTION - 24      ExploitRemoteService'>       			{'session': 0, 'agent': 'Red', 'ip_address': IPv4Address('10.0.38.183')}
+
+# Privilege escalation on 'Op_Server0'
+ACTION - 765     PrivilegeEscalate'>     			{'session': 0, 'agent': 'Red', 'hostname': 'Op_Server0'}
+
+# Impact on 'Op_server0'
+ACTION - 778      <Impact'>   					{'session': 0, 'agent': 'Red', 'hostname': 'Op_Server0'}
+
+[0,3,13,26,767,6,19,760,1,7,26,761,11,24,765,778]
+
+
+
+Enterprise0
+Enterprise1
+Enterprise2	10.0.251.42	
+Defender
+Op_Server0
+Op_Host0
+Op_Host1
+Op_Host2
+User0		10.0.19.32/28	ATTACKER
+User1
+User2
+User3
+User4
+
++----------------+-------------+-----------------+---------+------------+
+|     Subnet     |  IP Address |     Hostname    | Scanned |   Access   |
++----------------+-------------+-----------------+---------+------------+
+| 10.0.19.32/28  |  10.0.19.36 | UNKNOWN_HOST: 1 |  False  |    None    |
+| 10.0.19.32/28  |  10.0.19.42 |      User1      |   True  | Privileged |
+| 10.0.19.32/28  |  10.0.19.43 |      User0      |  False  | Privileged |
+| 10.0.19.32/28  |  10.0.19.44 | UNKNOWN_HOST: 2 |  False  |    None    |
+| 10.0.19.32/28  |  10.0.19.46 | UNKNOWN_HOST: 3 |  False  |    None    |
+| 10.0.251.32/28 | 10.0.251.39 |   Enterprise1   |   True  | Privileged |
+| 10.0.251.32/28 | 10.0.251.42 | UNKNOWN_HOST: 7 |  False  |    None    |
+| 10.0.251.32/28 | 10.0.251.44 | UNKNOWN_HOST: 6 |  False  |    None    |
+| 10.0.251.32/28 | 10.0.251.46 | UNKNOWN_HOST: 8 |   True  |    None    |
++----------------+-------------+-----------------+---------+------------+3

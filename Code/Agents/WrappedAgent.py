@@ -7,6 +7,7 @@ from CybORG.Agents import BaseAgent
 from CybORG.Shared import Results
 
 from CybORG.Agents import B_lineAgent
+from CybORG.Agents.SimpleAgents import Meander
 
 from Wrappers.ChallengeWrapper2 import ChallengeWrapper2
 
@@ -18,6 +19,7 @@ class WrappedBlueAgent(BaseAgent):
         path = str(inspect.getfile(CybORG))
         path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
         red_agent = B_lineAgent
+        # red_agent = Meander
         ori_cyborg = CybORG(path, 'sim')
         agent_name = 'Blue'
         self.w_env = ChallengeWrapper2(env=ori_cyborg, agent_name=agent_name)
@@ -28,6 +30,7 @@ class WrappedBlueAgent(BaseAgent):
 
     def train(self, results: Results):
         pass
+
     def reset(self):
         self.agent = MainAgent()
 

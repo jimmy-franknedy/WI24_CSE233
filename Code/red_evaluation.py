@@ -2,23 +2,27 @@
 # This script is used to evaluate the performance of a red agent against a blue agent
 # The blue agent is https://github.com/john-cardiff/-cyborg-cage-2.git
 # Modified by Prof. H. Sasahara
+
 import inspect
-import time, os, torch
-from statistics import mean, stdev
+import time
+import numpy as np
 
 from CybORG import CybORG, CYBORG_VERSION
 from CybORG.Agents import B_lineAgent, SleepAgent
 from CybORG.Agents.SimpleAgents.Meander import RedMeanderAgent
 from Wrappers.ChallengeWrapper2 import ChallengeWrapper2
-from Agents.WrappedAgent import WrappedBlueAgent
 from Agents.MainAgent import MainAgent
-from Agents.RedAgent import RedAgent
-import random
-import numpy as np
+from Agents.WrappedAgent import WrappedBlueAgent
+from Agents.RedAgent import RedPPOAgent
+import random, os, torch, shutil
 
-MAX_EPS = 1
+s = 153
+MAX_EPS = 100
 agent_name = 'Red'
-random.seed(153)
+random.seed(s)
+torch.manual_seed(s)
+random.seed(s)
+np.random.seed(s)
 
 
 # changed to ChallengeWrapper2
@@ -28,43 +32,54 @@ def wrap(env):
 if __name__ == "__main__":
     cyborg_version = CYBORG_VERSION
     scenario = 'Scenario2'
-    # commit_hash = get_git_revision_hash()
+    num_steps = 30
     
+    # Select agent directory from different agents
+    redAgent_1 = 'All_RedAction'
+    redAgent_2 = 'Opt_RedAction'
+    redAgent_3 = 'Opt_RedAction_ForceSleep'
+    folder = redAgent_2
+
+    # Create the policy directory path
+    agent_folder = os.path.join(os.getcwd(), "Models", folder)
+
+    # Select agent policy
+    load_checkpoint = None      # Default value is None; which chooses the last policy the agent has learned
+                                # Change None to a policy number if wanting to test a specific policy
+    intial_generation = None
+    if(load_checkpoint is None):
+        # Index past [0] because thats where the reward information is stored
+        load_checkpoint = sorted(os.listdir(agent_folder), key=lambda x: (int(x), -float('inf')) if x.isdigit() else (float('inf'), x), reverse=True)[1]
+        intial_generation = load_checkpoint
+    if(load_checkpoint is not None):
+        intial_generation = load_checkpoint
+
     # Load scenario
     path = str(inspect.getfile(CybORG))
     path = path[:-10] + f'/Shared/Scenarios/{scenario}.yaml'
 
     # Load blue agent
     blue_agent = WrappedBlueAgent
-    
+
     # Set up environment with blue agent running in the background and 
     # red agent as the main agent
     cyborg = CybORG(path, 'sim', agents={'Blue': blue_agent})
+    cyborg.set_seed(s)
     env = ChallengeWrapper2(env=cyborg, agent_name="Red")
+    env.set_seed(s)
+    
+    # Create the red agent
+    red_agent = RedPPOAgent(env.observation_space.shape[0]+num_steps, restore = True, ckpt = os.path.join(os.path.join(os.getcwd(), "Models", folder),str(load_checkpoint)), agent_type = folder)
 
-    # Load red agent
-    red_agent = RedAgent(env)
-
-    # Path to directory to store red agent's optimal policy
-    red_optimal_path = "red_optimal"
-
-    # Add torch.load() code here
-    red_agent.actor.load_state_dict(torch.load(os.path.join(red_optimal_path, "actor_policy.pth")))
-    red_agent.critic.load_state_dict(torch.load(os.path.join(red_optimal_path, "critic_policy.pth")))
-
-    # Intialize game and red agent observation
-    num_steps = 30
-    observation = env.reset()
-
-    # Default action selection - random choice
-    # action_space = wrapped_cyborg.get_action_space(agent_name)
-    action_space = env.get_action_space(agent_name)
-
+    # Print policy check
+    print("Testing",folder,"agent initialized with Generation",intial_generation)
+    testing_start = time.time()
     total_reward = []
     actions = []
     for i in range(MAX_EPS):
         r = []
         a = []
+        observation = env.reset()
         for j in range(num_steps):
 
             # Create the time bit vector
@@ -74,15 +89,16 @@ if __name__ == "__main__":
             time_vector[j] = 1
 
             # Combine the observation vector with time vector
-            complete_observation = np.concatenate((observation, time_vector))
-
-            # Get agent action
-            _, _, action = red_agent.get_action(complete_observation)
-
+            observation = np.concatenate((observation, time_vector))
+            action = red_agent.get_action(observation)
             observation, rew, done, info = env.step(action)
+
             r.append(rew)
-            print(j, ": ",rew)
             a.append((str(cyborg.get_last_action('Blue')), str(cyborg.get_last_action('Red'))))
+
         total_reward.append(sum(r))
         actions.append(a)
         observation = env.reset()
+    print("Average Total Rewards: {}".format(sum(total_reward)/len(total_reward)))
+    testing_end = time.time()
+    print("Test time:",time.strftime("%H:%M:%S", time.gmtime(testing_end-testing_start)))
