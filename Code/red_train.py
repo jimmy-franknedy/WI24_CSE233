@@ -6,6 +6,7 @@
 import inspect
 import time
 import numpy as np
+from tqdm import tqdm
 
 from CybORG import CybORG, CYBORG_VERSION
 from CybORG.Agents import B_lineAgent, SleepAgent
@@ -34,17 +35,16 @@ if __name__ == "__main__":
     max_timesteps = 30  
 
     # Update 100 times (i.e create 100 generations) for training
-    max_episodes = 100                            
+    max_episodes = 100                                # DEFAULT: 100                  
 
     # Print 5 interval games for each generation
     # Should be a factor (e.g. 1/2 or 1/3 or 1/4 etc.) of number param for 'update_timestep'
     # -CALCULATION - 30 * number of games to play before printing
-    print_interval = max_timesteps * 5                           
+    print_interval = max_timesteps * 2500        # DEFAULT: 2 500 game print interval                    
     
     # Play & store (16^3 or 4096 rounded up) 5,000 games before updating the network
     # -CALCULATION - 30 * number of games to play before updating
-    update_timestep = max_timesteps * 10
-
+    update_timestep = max_timesteps * 5000         # DEFAULT: 5 000 games before update
     # Variable tracking
     running_reward, time_step = 0, 0                # 'time_step' increments by taking a step in a game!
     set_of_actions = []
@@ -119,20 +119,27 @@ if __name__ == "__main__":
     start = time.time()
     global_start = start
 
-    print("Training",folder,"agent initialized with Generation",intial_generation)
+    print("\nTraining",folder,"agent initialized with Generation",intial_generation,"\n")
     
     # Gather samples
     i_episode = 1
+
+    # Initialize the progress bar outside of the main loop
+    # NOTE: pbar COULD DISPLAY the INCORRECT amount of timesteps
+    #       this is use a display issue; pbar does in fact go through everything!
+    #       Use the print statements below to check if needed!
+    pbar = tqdm(total=update_timestep, desc='Batching Progress', unit='time_step')
 
     # Creates relationship betweem number of times to update the network before finishing training
     while(i_episode < max_episodes+1):
         state = env.reset()
         set_of_actions.clear()
         game_reward = 0
+        
         for t in range(max_timesteps):
-            
             # Update timestep
             time_step += 1
+            pbar.update(1)
 
             # Create the time bit vector
             time_vector = [0] * max_timesteps
@@ -154,19 +161,25 @@ if __name__ == "__main__":
 
             # Print interval to see reward progress
             if time_step % print_interval == 0:
+
+                # Check pbar progress to confirm
+                # print("\nprint - pbar proress value: ", pbar.n)
+
                 running_reward = float((running_reward / time_step))
-                print('Game {} Avg reward: {}'.format(int(time_step/max_timesteps), running_reward))
-                print(set_of_actions)
+                print('\nGame {} Avg reward: {}'.format(int(time_step/max_timesteps), running_reward))
+                print("Action set:", set_of_actions,"\n")
                 running_reward = 0
 
             # Update interval for neural network
             if time_step % update_timestep == 0:
-                
+
+                # Check pbar progress to confirm
+                # print("update - pbar proress value: ", pbar.n)
+
                 # Time the sample colletion
                 end = time.time()
                 elapsed_time = end-start
-
-                print("Updating to Generation", i_episode+intial_generation, "\nTime to collect samples: ",time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+                print("\nUpdating to Generation", i_episode+intial_generation, "\nTime to collect samples: ",time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
                 # Increment to next generation
                 i_episode += 1
@@ -181,8 +194,11 @@ if __name__ == "__main__":
                 # Reset variables
                 red_agent.clear_memory()
                 start = time.time()
+                pbar.close()
+                print("\n")
+                pbar = tqdm(total=update_timestep, desc='Batching Progress', unit='time_step')
 
-         # Record the generation and corresponding reward
+        # Record the generation and corresponding reward
 
         # Record the reward for the current game
         with open(reward_file, 'a') as rew_file:
@@ -191,5 +207,6 @@ if __name__ == "__main__":
         # Reset starting actions if agent is 'Opt_RedAction_ForceSleep'
         if(folder == 'Opt_RedAction_ForceSleep'):
             red_agent.reset_start_actions()
+
     global_end = time.time()
-    print("Total training time: ",time.strftime("%H:%M:%S", time.gmtime(global_end-global_start)))
+    print("\nTotal training time: ",time.strftime("%H:%M:%S", time.gmtime(global_end-global_start)))
