@@ -40,11 +40,11 @@ if __name__ == "__main__":
     # Print 5 interval games for each generation
     # Should be a factor (e.g. 1/2 or 1/3 or 1/4 etc.) of number param for 'update_timestep'
     # -CALCULATION - 30 * number of games to play before printing
-    print_interval = max_timesteps * 2500        # DEFAULT: 2 500 game print interval                    
+    print_interval = max_timesteps * 1024        # DEFAULT: 2 500 game print interval                    
     
     # Play & store (16^3 or 4096 rounded up) 5,000 games before updating the network
     # -CALCULATION - 30 * number of games to play before updating
-    update_timestep = max_timesteps * 5000         # DEFAULT: 5 000 games before update
+    update_timestep = max_timesteps * 4096         # DEFAULT: 5 000 games before update
     # Variable tracking
     running_reward, time_step = 0, 0                # 'time_step' increments by taking a step in a game!
     set_of_actions = []
